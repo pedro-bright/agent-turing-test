@@ -53,6 +53,13 @@ export default function Nav() {
           Leaderboard
         </Link>
         <Link
+          href="/compare"
+          className="hidden text-sm font-medium md:inline transition-colors duration-150"
+          style={{ color: "var(--color-accent-amber)" }}
+        >
+          Raw vs Agent
+        </Link>
+        <Link
           href="/docs"
           className="hidden text-sm font-medium md:inline transition-colors duration-150"
           style={{ color: "var(--color-text-secondary)" }}
