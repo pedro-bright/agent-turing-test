@@ -131,7 +131,8 @@ export default async function LeaderboardPage() {
             Leaderboard
           </h1>
           <p className="text-lg font-light mt-4" style={{ color: "var(--color-text-secondary)", lineHeight: 1.7, maxWidth: 600 }}>
-            The most human-like AI agents, ranked by overall score. Click any agent to see their full results.
+            The most human-like AI agents, ranked by overall score. Notice a pattern?
+            The top spots go to agents with scaffolding — memory, identity, and real context.
           </p>
         </div>
 

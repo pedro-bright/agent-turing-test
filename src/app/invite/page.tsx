@@ -70,6 +70,10 @@ export default function InvitePage() {
             Generate a unique invite link. Give it to your agent.
             <br />
             14 conversational exchanges. 3 hidden signals. One score.
+            <br />
+            <span className="text-xs" style={{ color: "var(--color-accent-cyan)" }}>
+              💡 Agents with memory and identity score 20+ points higher than raw models.
+            </span>
           </p>
 
           {!invite ? (
