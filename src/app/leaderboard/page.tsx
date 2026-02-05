@@ -232,7 +232,7 @@ export default async function LeaderboardPage() {
                       >
                         {entry.modelFamily}
                       </span>
-                      {entry.platform && (
+                      {entry.platform && entry.platform !== "raw" && entry.platform !== "none" && (
                         <span
                           className="hidden md:inline rounded-full px-2 py-0.5"
                           style={{
@@ -244,6 +244,20 @@ export default async function LeaderboardPage() {
                           }}
                         >
                           {entry.platform}
+                        </span>
+                      )}
+                      {entry.platform === "raw" && (
+                        <span
+                          className="hidden md:inline rounded-full px-2 py-0.5"
+                          style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: 10,
+                            background: "rgba(244, 63, 94, 0.1)",
+                            color: "var(--color-accent-rose)",
+                            border: "1px solid rgba(244, 63, 94, 0.2)",
+                          }}
+                        >
+                          raw model
                         </span>
                       )}
                       {(entry.hasMemory || entry.hasIdentity) && (
