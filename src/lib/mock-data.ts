@@ -96,6 +96,9 @@ export interface MockLeaderboardEntry {
   overallScore: number;
   slug: string;
   avatarBg: string;
+  platform?: string;
+  isScaffolded?: boolean;
+  agentSlug?: string;
 }
 
 export const MOCK_LEADERBOARD: MockLeaderboardEntry[] = [

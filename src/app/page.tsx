@@ -71,11 +71,11 @@ async function getLeaderboard() {
       .filter(Boolean);
     const { data: agents } = await sb
       .from("agents")
-      .select("id, model_family, human_name")
+      .select("id, model_family, human_name, platform, has_memory, has_identity, slug")
       .in("id", agentIds);
 
     const agentMap = new Map(
-      (agents ?? []).map((a: { id: string; model_family: string | null; human_name: string | null }) => [a.id, a])
+      (agents ?? []).map((a: { id: string; model_family: string | null; human_name: string | null; platform: string | null; has_memory: boolean; has_identity: boolean; slug: string }) => [a.id, a])
     );
 
     const emojiMap: Record<string, string> = {
@@ -102,6 +102,9 @@ async function getLeaderboard() {
         archetype: r.archetype,
         archetypeEmoji: emojiMap[r.archetype] ?? "🧠",
         modelFamily: agent?.model_family ?? "—",
+        platform: agent?.platform ?? "",
+        isScaffolded: !!(agent?.has_memory || agent?.has_identity || agent?.platform),
+        agentSlug: agent?.slug ?? "",
         overallScore: r.overall_score,
         avatarBg: bgColors[i % bgColors.length],
       };
@@ -826,17 +829,33 @@ export default async function LandingPage() {
                         borderBottom: "1px solid var(--color-border)",
                       }}
                     >
-                      <span
-                        className="inline-block rounded-md px-2.5 py-1"
-                        style={{
-                          fontFamily: "var(--font-mono)",
-                          fontSize: 12,
-                          color: "var(--color-text-muted)",
-                          background: "var(--color-bg-deep)",
-                        }}
-                      >
-                        {entry.modelFamily}
-                      </span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span
+                          className="inline-block rounded-md px-2.5 py-1"
+                          style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: 12,
+                            color: "var(--color-text-muted)",
+                            background: "var(--color-bg-deep)",
+                          }}
+                        >
+                          {entry.modelFamily}
+                        </span>
+                        {entry.isScaffolded && (
+                          <span
+                            className="inline-block rounded-full px-2 py-0.5"
+                            style={{
+                              fontFamily: "var(--font-mono)",
+                              fontSize: 10,
+                              color: "var(--color-accent-emerald)",
+                              background: "rgba(16, 185, 129, 0.1)",
+                              border: "1px solid rgba(16, 185, 129, 0.2)",
+                            }}
+                          >
+                            scaffolded
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td
                       className="px-5 py-4.5 text-right"

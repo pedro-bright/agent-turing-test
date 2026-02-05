@@ -243,7 +243,20 @@ export async function GET(
           </div>
         </div>
 
-        {/* CTA */}
+        {/* Thesis tagline + CTA */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 20,
+            left: 56,
+            display: "flex",
+            fontSize: 12,
+            color: "#555570",
+            fontStyle: "italic",
+          }}
+        >
+          It&rsquo;s not the model. It&rsquo;s the agent.
+        </div>
         <div
           style={{
             position: "absolute",
