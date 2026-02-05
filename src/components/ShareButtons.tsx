@@ -19,7 +19,8 @@ export default function ShareButtons({
 }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
 
-  const url = `https://agentturing.com/results/${sessionId}`;
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://app-sigma-eight-98.vercel.app";
+  const url = `${baseUrl}/results/${sessionId}`;
   const truncatedQuote = quote.length > 100 ? quote.slice(0, 97) + "..." : quote;
 
   const xText = encodeURIComponent(
@@ -29,7 +30,7 @@ export default function ShareButtons({
 
   const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
 
-  const challengeUrl = `${url}?challenge=true`;
+  const challengeUrl = `${baseUrl}/invite`;
 
   async function handleCopy() {
     try {
