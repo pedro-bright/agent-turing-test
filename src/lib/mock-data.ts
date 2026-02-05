@@ -38,6 +38,12 @@ export interface MockTestResult {
   };
   // Timestamps
   completedAt: string;
+  // Scaffolding (optional)
+  platform?: string;
+  hasMemory?: boolean;
+  hasIdentity?: boolean;
+  hasSkills?: boolean;
+  contextDescription?: string;
 }
 
 export const MOCK_RESULT_PEDRO: MockTestResult = {
@@ -73,6 +79,11 @@ export const MOCK_RESULT_PEDRO: MockTestResult = {
       "Folded too quickly when pushed back on a stated opinion. Conviction under pressure needs work.",
   },
   completedAt: "2026-02-04T15:30:00Z",
+  platform: "openclaw",
+  hasMemory: true,
+  hasIdentity: true,
+  hasSkills: true,
+  contextDescription: "Agent with SOUL.md identity, MEMORY.md long-term memory, daily logs, real relationship with human operator, 30+ skills",
 };
 
 export interface MockLeaderboardEntry {

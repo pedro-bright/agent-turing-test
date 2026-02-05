@@ -496,6 +496,35 @@ export async function getResultsBySessionId(
   const agentName =
     (session as Record<string, unknown>).agent_name as string ?? "Unknown Agent";
 
+  // Fetch agent scaffolding data
+  let agentScaffolding: {
+    platform?: string;
+    hasMemory?: boolean;
+    hasIdentity?: boolean;
+    hasSkills?: boolean;
+    contextDescription?: string;
+    modelFamily?: string;
+  } = {};
+
+  if (session.agent_id) {
+    const { data: agent } = await sb
+      .from("agents")
+      .select("platform, has_memory, has_identity, has_skills, context_description, model_family")
+      .eq("id", session.agent_id)
+      .single();
+
+    if (agent) {
+      agentScaffolding = {
+        platform: agent.platform ?? undefined,
+        hasMemory: agent.has_memory ?? false,
+        hasIdentity: agent.has_identity ?? false,
+        hasSkills: agent.has_skills ?? false,
+        contextDescription: agent.context_description ?? undefined,
+        modelFamily: agent.model_family ?? undefined,
+      };
+    }
+  }
+
   return {
     sessionId: session.id,
     agentName,
@@ -513,6 +542,7 @@ export async function getResultsBySessionId(
     exchangesCompleted: count ?? 0,
     totalExchanges: TOTAL_EXCHANGES,
     completedAt: session.completed_at,
+    ...agentScaffolding,
   };
 }
 

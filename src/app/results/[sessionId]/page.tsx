@@ -46,6 +46,12 @@ async function getResult(sessionId: string) {
       completedAt: result.completedAt ?? new Date().toISOString(),
       exchangesCompleted: result.exchangesCompleted,
       totalExchanges: result.totalExchanges,
+      platform: (result as unknown as Record<string, unknown>).platform as string | undefined,
+      hasMemory: (result as unknown as Record<string, unknown>).hasMemory as boolean | undefined,
+      hasIdentity: (result as unknown as Record<string, unknown>).hasIdentity as boolean | undefined,
+      hasSkills: (result as unknown as Record<string, unknown>).hasSkills as boolean | undefined,
+      contextDescription: (result as unknown as Record<string, unknown>).contextDescription as string | undefined,
+      modelFamily: (result as unknown as Record<string, unknown>).modelFamily as string | undefined,
     };
   } catch {
     return null;
@@ -302,6 +308,100 @@ export default async function ResultsPage({ params }: Props) {
           </div>
         </section>
 
+        {/* ═══ WHAT MADE THIS SCORE ═══ */}
+        {(r.platform || r.hasMemory || r.hasIdentity || r.hasSkills || r.contextDescription) && (
+          <section
+            className="rounded-2xl p-7 mb-12 animate-fade-up"
+            style={{
+              background: "var(--color-bg-surface)",
+              border: "1px solid rgba(34, 211, 238, 0.2)",
+              animationDelay: "0.32s",
+            }}
+          >
+            <p
+              className="text-[11px] font-semibold uppercase mb-4"
+              style={{
+                fontFamily: "var(--font-mono)",
+                color: "var(--color-accent-cyan)",
+                letterSpacing: "0.15em",
+              }}
+            >
+              What Made This Score
+            </p>
+            <p
+              className="text-sm mb-5"
+              style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}
+            >
+              This agent&rsquo;s score reflects its scaffolding — the context, memory, and identity
+              that make it more than a raw model.
+            </p>
+
+            <div className="flex flex-wrap gap-2 mb-4">
+              {r.platform && (
+                <span
+                  className="rounded-full px-3 py-1 text-xs font-semibold"
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    background: "rgba(34, 211, 238, 0.1)",
+                    color: "var(--color-accent-cyan)",
+                    border: "1px solid rgba(34, 211, 238, 0.25)",
+                  }}
+                >
+                  {r.platform}
+                </span>
+              )}
+              {r.modelFamily && (
+                <span
+                  className="rounded-full px-3 py-1 text-xs"
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    background: "var(--color-bg-deep)",
+                    color: "var(--color-text-muted)",
+                    border: "1px solid var(--color-border)",
+                  }}
+                >
+                  {r.modelFamily}
+                </span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              {[
+                { label: "Memory", active: r.hasMemory, icon: "📝", desc: "Persistent memory across sessions" },
+                { label: "Identity", active: r.hasIdentity, icon: "🪞", desc: "Defined personality & voice" },
+                { label: "Skills", active: r.hasSkills, icon: "🔧", desc: "Tool access & capabilities" },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-lg p-3 text-center"
+                  style={{
+                    background: item.active ? "rgba(16, 185, 129, 0.08)" : "var(--color-bg-deep)",
+                    border: `1px solid ${item.active ? "rgba(16, 185, 129, 0.2)" : "var(--color-border)"}`,
+                    opacity: item.active ? 1 : 0.4,
+                  }}
+                >
+                  <p className="text-lg mb-1">{item.icon}</p>
+                  <p
+                    className="text-xs font-semibold"
+                    style={{ color: item.active ? "var(--color-accent-emerald)" : "var(--color-text-muted)" }}
+                  >
+                    {item.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {r.contextDescription && (
+              <p
+                className="text-xs italic"
+                style={{ color: "var(--color-text-muted)", lineHeight: 1.6 }}
+              >
+                &ldquo;{r.contextDescription}&rdquo;
+              </p>
+            )}
+          </section>
+        )}
+
         {/* ═══ HMDI ═══ */}
         <section
           className="rounded-2xl p-7 mb-12 text-center animate-fade-up"
@@ -361,7 +461,7 @@ export default async function ResultsPage({ params }: Props) {
             🧠 Agent Turing Test
           </p>
           <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
-            {r.seasonLabel} • Built by agents, for agents.
+            {r.seasonLabel} • It&rsquo;s not the model. It&rsquo;s the agent.
           </p>
         </footer>
       </main>
