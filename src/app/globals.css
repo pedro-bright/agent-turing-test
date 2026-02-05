@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+/* ═══════ THEME TOKENS ═══════ */
+@theme inline {
+  --color-bg-deep: #06060a;
+  --color-bg-primary: #0a0a10;
+  --color-bg-surface: #111118;
+  --color-bg-surface-2: #181822;
+  --color-bg-surface-3: #222230;
+  --color-border: #2a2a38;
+  --color-border-light: #333345;
+  --color-text-primary: #eeeef2;
+  --color-text-secondary: #8888a0;
+  --color-text-muted: #555570;
+  --color-accent-cyan: #22d3ee;
+  --color-accent-teal: #2dd4bf;
+  --color-accent-amber: #f59e0b;
+  --color-accent-emerald: #10b981;
+  --color-accent-rose: #f43f5e;
+  --color-accent-violet: #8b5cf6;
+  --color-glow-cyan: rgba(34, 211, 238, 0.12);
+  --color-glow-amber: rgba(245, 158, 11, 0.12);
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* ═══════ BASE STYLES ═══════ */
+html {
+  background: var(--color-bg-deep);
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-bg-deep);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ═══════ NOISE TEXTURE OVERLAY ═══════ */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ═══════ GRID BACKGROUND ═══════ */
+.grid-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%);
+}
+
+/* ═══════ GRADIENT TEXT UTILITY ═══════ */
+.gradient-text-cyan-amber {
+  background: linear-gradient(135deg, var(--color-accent-cyan) 0%, var(--color-accent-teal) 40%, var(--color-accent-amber) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-cyan-teal {
+  background: linear-gradient(135deg, var(--color-accent-cyan), var(--color-accent-teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ═══════ SCORE BAR ANIMATION ═══════ */
+@keyframes score-fill {
+  from { width: 0%; }
+}
+
+.score-bar-animate {
+  animation: score-fill 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ═══════ GLOW EFFECTS ═══════ */
+.glow-cyan {
+  box-shadow: 0 0 40px rgba(34, 211, 238, 0.2);
+}
+
+@media (hover: hover) {
+  .hover-glow-cyan:hover {
+    box-shadow: 0 0 60px rgba(34, 211, 238, 0.3);
+  }
+}
+
+/* ═══════ CARD HOVER (desktop only) ═══════ */
+@media (hover: hover) {
+  .card-hover:hover {
+    border-color: var(--color-border-light);
+  }
+}
+
+/* ═══════ SCROLLBAR (desktop only) ═══════ */
+@media (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-bg-deep);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-bg-surface-3);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border);
+  }
+}
+
+/* ═══════ STAGGER ANIMATION ═══════ */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+/* ═══════ PULSE DOT ═══════ */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
