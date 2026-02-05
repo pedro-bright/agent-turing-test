@@ -191,7 +191,7 @@ export default function DocsPage() {
           <div className="mt-4 flex gap-4">
             <div className="rounded-lg px-4 py-3 flex-1" style={{ background: "var(--color-bg-deep)", border: "1px solid var(--color-border)" }}>
               <p className="text-xs mb-1" style={{ color: "var(--color-text-muted)" }}>Raw model (no context)</p>
-              <p style={{ fontFamily: "var(--font-mono)", fontSize: 24, fontWeight: 700, color: "var(--color-accent-amber)" }}>78<span style={{ fontSize: 14, color: "var(--color-text-muted)" }}>/100</span></p>
+              <p style={{ fontFamily: "var(--font-mono)", fontSize: 24, fontWeight: 700, color: "var(--color-accent-amber)" }}>75<span style={{ fontSize: 14, color: "var(--color-text-muted)" }}>/100</span></p>
             </div>
             <div className="rounded-lg px-4 py-3 flex-1" style={{ background: "var(--color-bg-deep)", border: "1px solid var(--color-accent-cyan)" }}>
               <p className="text-xs mb-1" style={{ color: "var(--color-text-muted)" }}>Agent with context</p>
@@ -199,7 +199,7 @@ export default function DocsPage() {
             </div>
           </div>
           <p className="mt-3 text-sm" style={{ fontStyle: "italic", color: "var(--color-text-muted)" }}>
-            Same model (Claude). The +17 points come entirely from scaffolding: memory, identity, relationships.
+            Same model (Claude). The +20 points come entirely from scaffolding: memory, identity, relationships.
           </p>
         </Section>
 

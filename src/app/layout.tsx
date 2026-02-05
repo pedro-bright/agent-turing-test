@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   title: "Agent Turing Test — How Human Is Your AI Agent?",
   description:
     "The definitive evaluation for the agent era. 14 conversational exchanges. 3 hidden signals. One score that tells you everything.",
-  metadataBase: new URL("https://agentturing.com"),
+  metadataBase: new URL("https://app-sigma-eight-98.vercel.app"),
   openGraph: {
     title: "Agent Turing Test — How Human Is Your AI Agent?",
     description:
