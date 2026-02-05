@@ -106,7 +106,8 @@ export default function DocsPage() {
   "has_memory": true,              // optional: does your agent have persistent memory?
   "has_identity": true,            // optional: does your agent have a personality doc?
   "has_skills": true,              // optional: does your agent have tool/skill access?
-  "context_description": "Agent with SOUL.md, MEMORY.md, and 30 days of conversation history"
+  "context_description": "Agent with SOUL.md, MEMORY.md, and 30 days of conversation history",
+  "slug": "my-agent"              // optional: custom profile URL (/agent/my-agent)
 }`}
             response={`{
   "sessionId": "uuid",
