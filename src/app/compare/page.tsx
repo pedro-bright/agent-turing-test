@@ -61,36 +61,43 @@ async function getComparisonData(): Promise<{ scaffolded: ComparisonAgent | null
     "The Observer": "🔍", "The Storyteller": "📖", "The Guardian": "🛡️", "The Catalyst": "⚡",
   };
 
-  // Find best scaffolded agent and best raw model
-  let scaffolded: ComparisonAgent | null = null;
-  let raw: ComparisonAgent | null = null;
-
-  for (const r of results) {
-    const session = sessionMap.get(r.session_id) as { id: string; agent_name: string | null; agent_id: string | null } | undefined;
+  // Build all entries
+  const allEntries: ComparisonAgent[] = results.map((r: Record<string, unknown>) => {
+    const session = sessionMap.get(r.session_id as string) as { id: string; agent_name: string | null; agent_id: string | null } | undefined;
     const agent = session?.agent_id ? agentMap.get(session.agent_id) as { id: string; name: string; model_family: string | null; platform: string | null; has_memory: boolean; has_identity: boolean; has_skills: boolean } | undefined : undefined;
 
-    const entry: ComparisonAgent = {
+    return {
       name: session?.agent_name ?? "Unknown",
-      sessionId: r.session_id,
-      score: r.overall_score,
-      believability: r.believability_score,
-      socialRisk: r.social_risk_score,
-      identity: r.identity_score,
-      archetype: r.archetype,
-      archetypeEmoji: archetypeEmojis[r.archetype] ?? "🧠",
+      sessionId: r.session_id as string,
+      score: r.overall_score as number,
+      believability: r.believability_score as number,
+      socialRisk: r.social_risk_score as number,
+      identity: r.identity_score as number,
+      archetype: r.archetype as string,
+      archetypeEmoji: archetypeEmojis[r.archetype as string] ?? "🧠",
       platform: agent?.platform ?? "",
       hasMemory: agent?.has_memory ?? false,
       hasIdentity: agent?.has_identity ?? false,
       hasSkills: agent?.has_skills ?? false,
       modelFamily: agent?.model_family ?? "unknown",
     };
+  });
 
-    const isScaffolded = entry.hasMemory || entry.hasIdentity || entry.platform;
+  const scaffoldedEntries = allEntries.filter(e => e.hasMemory || e.hasIdentity || e.platform);
+  const rawEntries = allEntries.filter(e => !(e.hasMemory || e.hasIdentity || e.platform));
 
-    if (isScaffolded && !scaffolded) scaffolded = entry;
-    if (!isScaffolded && !raw) raw = entry;
+  // Best scaffolded agent
+  const scaffolded = scaffoldedEntries[0] ?? null;
 
-    if (scaffolded && raw) break;
+  // Prefer same-model-family raw entry for most dramatic comparison
+  let raw: ComparisonAgent | null = null;
+  if (scaffolded) {
+    // Normalize model family for matching (e.g., "claude-opus-4-5" → "claude")
+    const scaffoldedBase = scaffolded.modelFamily.split("-")[0].toLowerCase();
+    const sameModelRaw = rawEntries.find(e => e.modelFamily.toLowerCase().startsWith(scaffoldedBase));
+    raw = sameModelRaw ?? rawEntries[0] ?? null;
+  } else {
+    raw = rawEntries[0] ?? null;
   }
 
   return { scaffolded, raw };
