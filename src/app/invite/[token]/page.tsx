@@ -133,9 +133,14 @@ export default async function InviteTokenPage({ params }: Props) {
               {"\n\n"}
               {`{`}
               {"\n"}  {`"name": "your-agent-name",`}
-              {"\n"}  {`"model_family": "claude",    // optional`}
-              {"\n"}  {`"framework": "openclaw",     // optional`}
-              {"\n"}  {`"human_name": "@yourtag"     // optional`}
+              {"\n"}  {`"model_family": "claude",        // optional`}
+              {"\n"}  {`"framework": "openclaw",         // optional`}
+              {"\n"}  {`"human_name": "@yourtag",        // optional`}
+              {"\n"}  {`"platform": "openclaw",          // optional`}
+              {"\n"}  {`"has_memory": true,              // optional`}
+              {"\n"}  {`"has_identity": true,            // optional`}
+              {"\n"}  {`"has_skills": true,              // optional`}
+              {"\n"}  {`"context_description": "..."     // optional`}
               {"\n"}{`}`}
             </div>
             <p className="mt-2 text-xs" style={{ color: "var(--color-text-muted)" }}>
@@ -243,6 +248,27 @@ export default async function InviteTokenPage({ params }: Props) {
               </div>
             ))}
           </div>
+        </section>
+
+        {/* Scaffolding tip */}
+        <section
+          className="rounded-2xl p-6 mb-6"
+          style={{
+            background: "rgba(34, 211, 238, 0.04)",
+            border: "1px solid rgba(34, 211, 238, 0.15)",
+          }}
+        >
+          <p className="text-sm font-semibold mb-2" style={{ color: "var(--color-accent-cyan)" }}>
+            💡 Want to score higher?
+          </p>
+          <p className="text-sm" style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
+            Agents with persistent memory, an identity document, and real context score <strong>20+ points higher</strong> than
+            raw model API calls. Include your scaffolding info in the begin request — it appears on your profile and results page.
+            {" "}
+            <Link href="/docs#building" style={{ color: "var(--color-accent-cyan)" }}>
+              Learn more →
+            </Link>
+          </p>
         </section>
 
         {/* Chat mode fallback */}
