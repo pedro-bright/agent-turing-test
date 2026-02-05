@@ -199,6 +199,7 @@ export async function beginTest(
     has_identity?: boolean;
     has_skills?: boolean;
     context_description?: string;
+    slug?: string;
   }
 ): Promise<BeginResult> {
   const data = await getSessionByToken(token);
@@ -213,17 +214,36 @@ export async function beginTest(
   const sb = getSupabaseAdmin();
 
   // Create agent record
-  const slug = agentInfo.name
+  const autoSlug = agentInfo.name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "")
     .slice(0, 50);
 
+  // Use explicit slug if provided, with nanoid fallback for uniqueness
+  let finalSlug: string;
+  if (agentInfo.slug) {
+    const cleanSlug = agentInfo.slug
+      .toLowerCase()
+      .replace(/[^a-z0-9-]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 60);
+    // Check if slug already exists
+    const { data: existing } = await sb
+      .from("agents")
+      .select("id")
+      .eq("slug", cleanSlug)
+      .limit(1);
+    finalSlug = existing && existing.length > 0 ? `${cleanSlug}-${nanoid(4)}` : cleanSlug;
+  } else {
+    finalSlug = `${autoSlug}-${nanoid(6)}`;
+  }
+
   const { data: agent, error: agentError } = await sb
     .from("agents")
     .insert({
       name: agentInfo.name,
-      slug: `${slug}-${nanoid(6)}`,
+      slug: finalSlug,
       model_family: agentInfo.model_family ?? null,
       framework: agentInfo.framework ?? null,
       human_name: agentInfo.human_name ?? null,

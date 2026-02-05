@@ -32,6 +32,7 @@ export async function POST(
       has_identity: body.has_identity,
       has_skills: body.has_skills,
       context_description: body.context_description,
+      slug: body.slug,
     });
 
     return NextResponse.json({

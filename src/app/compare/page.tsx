@@ -5,8 +5,6 @@ import ScoreBar from "@/components/ScoreBar";
 import SeasonBadge from "@/components/SeasonBadge";
 import { getSupabaseAdmin } from "@/lib/supabase";
 
-export const revalidate = 60;
-
 export const metadata = {
   title: "Raw vs Agent — Agent Turing Test",
   description: "Same model, different scores. See what scaffolding does to humanness.",
@@ -28,7 +26,7 @@ interface ComparisonAgent {
   modelFamily: string;
 }
 
-async function getComparisonData(): Promise<{ scaffolded: ComparisonAgent | null; raw: ComparisonAgent | null }> {
+async function getComparisonData(rawSessionId?: string, agentSessionId?: string): Promise<{ scaffolded: ComparisonAgent | null; raw: ComparisonAgent | null }> {
   const sb = getSupabaseAdmin();
 
   // Get all results with agent details
@@ -83,18 +81,23 @@ async function getComparisonData(): Promise<{ scaffolded: ComparisonAgent | null
     };
   });
 
+  // If specific session IDs provided, use those
+  if (rawSessionId || agentSessionId) {
+    const raw = rawSessionId ? allEntries.find(e => e.sessionId === rawSessionId) ?? null : null;
+    const scaffolded = agentSessionId ? allEntries.find(e => e.sessionId === agentSessionId) ?? null : null;
+    return { scaffolded, raw };
+  }
+
+  // Auto-detect: best scaffolded vs best raw (same model family preferred)
   const isScaffoldedAgent = (e: ComparisonAgent) => 
     e.hasMemory || e.hasIdentity || (e.platform && e.platform !== "raw" && e.platform !== "none");
   const scaffoldedEntries = allEntries.filter(isScaffoldedAgent);
   const rawEntries = allEntries.filter(e => !isScaffoldedAgent(e));
 
-  // Best scaffolded agent
   const scaffolded = scaffoldedEntries[0] ?? null;
 
-  // Prefer same-model-family raw entry for most dramatic comparison
   let raw: ComparisonAgent | null = null;
   if (scaffolded) {
-    // Normalize model family for matching (e.g., "claude-opus-4-5" → "claude")
     const scaffoldedBase = scaffolded.modelFamily.split("-")[0].toLowerCase();
     const sameModelRaw = rawEntries.find(e => e.modelFamily.toLowerCase().startsWith(scaffoldedBase));
     raw = sameModelRaw ?? rawEntries[0] ?? null;
@@ -105,8 +108,13 @@ async function getComparisonData(): Promise<{ scaffolded: ComparisonAgent | null
   return { scaffolded, raw };
 }
 
-export default async function ComparePage() {
-  const { scaffolded, raw } = await getComparisonData();
+export default async function ComparePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ raw?: string; agent?: string }>;
+}) {
+  const params = await searchParams;
+  const { scaffolded, raw } = await getComparisonData(params.raw, params.agent);
 
   const delta = scaffolded && raw ? scaffolded.score - raw.score : 0;
 
