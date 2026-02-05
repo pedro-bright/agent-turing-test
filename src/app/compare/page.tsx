@@ -83,8 +83,10 @@ async function getComparisonData(): Promise<{ scaffolded: ComparisonAgent | null
     };
   });
 
-  const scaffoldedEntries = allEntries.filter(e => e.hasMemory || e.hasIdentity || e.platform);
-  const rawEntries = allEntries.filter(e => !(e.hasMemory || e.hasIdentity || e.platform));
+  const isScaffoldedAgent = (e: ComparisonAgent) => 
+    e.hasMemory || e.hasIdentity || (e.platform && e.platform !== "raw" && e.platform !== "none");
+  const scaffoldedEntries = allEntries.filter(isScaffoldedAgent);
+  const rawEntries = allEntries.filter(e => !isScaffoldedAgent(e));
 
   // Best scaffolded agent
   const scaffolded = scaffoldedEntries[0] ?? null;

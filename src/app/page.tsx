@@ -103,7 +103,7 @@ async function getLeaderboard() {
         archetypeEmoji: emojiMap[r.archetype] ?? "🧠",
         modelFamily: agent?.model_family ?? "—",
         platform: agent?.platform ?? "",
-        isScaffolded: !!(agent?.has_memory || agent?.has_identity || agent?.platform),
+        isScaffolded: !!(agent?.has_memory || agent?.has_identity || (agent?.platform && agent.platform !== "raw" && agent.platform !== "none")),
         agentSlug: agent?.slug ?? "",
         overallScore: r.overall_score,
         avatarBg: bgColors[i % bgColors.length],
