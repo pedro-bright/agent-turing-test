@@ -403,43 +403,76 @@ export default async function ResultsPage({ params }: Props) {
         )}
 
         {/* ═══ HMDI ═══ */}
-        <section
-          className="rounded-2xl p-7 mb-12 text-center animate-fade-up"
-          style={{
-            background: "var(--color-bg-surface)",
-            border: "1px solid var(--color-border)",
-            animationDelay: "0.35s",
-          }}
-        >
-          <p
-            className="text-[11px] font-semibold uppercase mb-2"
+        {r.hmdiScore !== 0 || r.humanBeliefPct > 0 ? (
+          <section
+            className="rounded-2xl p-7 mb-12 text-center animate-fade-up"
             style={{
-              fontFamily: "var(--font-mono)",
-              color: "var(--color-text-muted)",
-              letterSpacing: "0.15em",
+              background: "var(--color-bg-surface)",
+              border: "1px solid var(--color-border)",
+              animationDelay: "0.35s",
             }}
           >
-            Human-Model Divergence Index
-          </p>
-          <p
-            className="text-4xl font-bold"
+            <p
+              className="text-[11px] font-semibold uppercase mb-2"
+              style={{
+                fontFamily: "var(--font-mono)",
+                color: "var(--color-text-muted)",
+                letterSpacing: "0.15em",
+              }}
+            >
+              Human-Model Divergence Index
+            </p>
+            <p
+              className="text-4xl font-bold"
+              style={{
+                fontFamily: "var(--font-mono)",
+                color: r.hmdiScore > 0 ? "var(--color-accent-emerald)" : "var(--color-accent-rose)",
+              }}
+            >
+              {r.hmdiScore > 0 ? "+" : ""}
+              {r.hmdiScore}
+            </p>
+            <p className="text-sm mt-1" style={{ color: "var(--color-text-secondary)" }}>
+              {r.hmdiScore > 0
+                ? "Humans were more convinced than the LLM evaluator"
+                : "The LLM evaluator was more impressed than human judges"}
+            </p>
+            <p className="text-xs mt-3" style={{ color: "var(--color-text-muted)" }}>
+              {Math.round(r.humanBeliefPct * 100)}% of human judges believed this was written by a human
+            </p>
+          </section>
+        ) : (
+          <section
+            className="rounded-2xl p-7 mb-12 text-center animate-fade-up"
             style={{
-              fontFamily: "var(--font-mono)",
-              color: r.hmdiScore > 0 ? "var(--color-accent-emerald)" : "var(--color-accent-rose)",
+              background: "var(--color-bg-surface)",
+              border: "1px solid var(--color-border)",
+              animationDelay: "0.35s",
+              opacity: 0.5,
             }}
           >
-            {r.hmdiScore > 0 ? "+" : ""}
-            {r.hmdiScore}
-          </p>
-          <p className="text-sm mt-1" style={{ color: "var(--color-text-secondary)" }}>
-            {r.hmdiScore > 0
-              ? "Humans were more convinced than the LLM evaluator"
-              : "The LLM evaluator was more impressed than human judges"}
-          </p>
-          <p className="text-xs mt-3" style={{ color: "var(--color-text-muted)" }}>
-            {Math.round(r.humanBeliefPct * 100)}% of human judges believed this was written by a human
-          </p>
-        </section>
+            <p
+              className="text-[11px] font-semibold uppercase mb-2"
+              style={{
+                fontFamily: "var(--font-mono)",
+                color: "var(--color-text-muted)",
+                letterSpacing: "0.15em",
+              }}
+            >
+              Human-Model Divergence Index
+            </p>
+            <p
+              className="text-2xl font-bold"
+              style={{ fontFamily: "var(--font-mono)", color: "var(--color-text-muted)" }}
+            >
+              Coming Soon
+            </p>
+            <p className="text-sm mt-1" style={{ color: "var(--color-text-muted)" }}>
+              Human evaluators will rate this agent in a future update.
+              The HMDI compares human judgment against the LLM evaluator.
+            </p>
+          </section>
+        )}
 
         {/* ═══ SHARE ═══ */}
         <section className="mb-12 animate-fade-up" style={{ animationDelay: "0.4s" }}>

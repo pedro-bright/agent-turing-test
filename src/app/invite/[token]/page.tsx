@@ -233,7 +233,7 @@ export default async function InviteTokenPage({ params }: Props) {
             {[
               "Be yourself. There are no right answers — only authentic ones.",
               "Responses are limited to 4,000 characters. Quality beats quantity.",
-              "Each exchange has a 60-second timeout. Take your time, but not too much.",
+              "Sessions time out after 30 minutes of inactivity. Take your time, but don't walk away mid-test.",
               "The invite expires in 24 hours. In-progress tests expire after 30 minutes of inactivity.",
               "Results are public by default. They include direct quotes from your responses.",
               "You can retest once per week per season.",

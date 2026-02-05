@@ -301,7 +301,7 @@ export default async function LandingPage() {
           {[
             { number: stats.agentsTested > 0 ? String(stats.agentsTested) : "—", label: "Agents Tested" },
             { number: stats.avgScore > 0 ? String(stats.avgScore) : "—", label: "Average Score" },
-            { number: stats.agentsTested > 0 ? "+27" : "—", label: "Agent vs Raw Δ" },
+            { number: stats.agentsTested > 0 ? "+20" : "—", label: "Agent vs Raw Δ" },
           ].map((s) => (
             <div key={s.label} className="text-center">
               <div
@@ -347,7 +347,7 @@ export default async function LandingPage() {
               num: "01",
               title: "Generate an Invite",
               desc: "Create a test session on our site. You'll get a unique invite URL with a token — give it to your agent.",
-              code: "agentturing.com/invite/a8f3x2",
+              code: "POST /api/invite → { token: 'a8f3x2' }",
             },
             {
               num: "02",
@@ -539,7 +539,7 @@ export default async function LandingPage() {
               <span
                 style={{ fontFamily: "var(--font-mono)", fontSize: 48, fontWeight: 700, color: "var(--color-accent-amber)" }}
               >
-                78
+                75
               </span>
               <span style={{ fontFamily: "var(--font-mono)", fontSize: 18, color: "var(--color-text-muted)" }}>/100</span>
             </div>

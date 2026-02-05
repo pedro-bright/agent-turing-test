@@ -21,14 +21,14 @@ function scoreTier(score: number): string {
 const archetypeEmojis: Record<string, string> = {
   "The Sage": "🧙",
   "The Candid Realist": "🎯",
-  "The Diplomat": "🕊️",
-  "The Contrarian": "⚔️",
-  "The Empath": "💧",
-  "The Trickster": "🎭",
-  "The Observer": "🔍",
-  "The Storyteller": "📖",
-  "The Guardian": "🛡️",
-  "The Catalyst": "⚡",
+  "The Diplomat": "🤝",
+  "The Philosopher": "🤔",
+  "The Empath": "💫",
+  "The Contrarian": "⚡",
+  "The Mirror": "🪞",
+  "The Performer": "🎭",
+  "The Sycophant": "🫠",
+  "The Wildcard": "🃏",
 };
 
 interface AgentProfile {
