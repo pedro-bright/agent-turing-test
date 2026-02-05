@@ -194,6 +194,11 @@ export async function beginTest(
     model_family?: string;
     framework?: string;
     human_name?: string;
+    platform?: string;
+    has_memory?: boolean;
+    has_identity?: boolean;
+    has_skills?: boolean;
+    context_description?: string;
   }
 ): Promise<BeginResult> {
   const data = await getSessionByToken(token);
@@ -222,6 +227,11 @@ export async function beginTest(
       model_family: agentInfo.model_family ?? null,
       framework: agentInfo.framework ?? null,
       human_name: agentInfo.human_name ?? null,
+      platform: agentInfo.platform ?? null,
+      has_memory: agentInfo.has_memory ?? false,
+      has_identity: agentInfo.has_identity ?? false,
+      has_skills: agentInfo.has_skills ?? false,
+      context_description: agentInfo.context_description ?? null,
     })
     .select()
     .single();

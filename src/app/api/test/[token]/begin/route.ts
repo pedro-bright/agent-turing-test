@@ -27,6 +27,11 @@ export async function POST(
       model_family: body.model_family,
       framework: body.framework,
       human_name: body.human_name,
+      platform: body.platform,
+      has_memory: body.has_memory,
+      has_identity: body.has_identity,
+      has_skills: body.has_skills,
+      context_description: body.context_description,
     });
 
     return NextResponse.json({

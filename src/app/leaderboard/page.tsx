@@ -15,6 +15,9 @@ interface LeaderboardEntry {
   agentName: string;
   humanName: string;
   modelFamily: string;
+  platform: string;
+  hasMemory: boolean;
+  hasIdentity: boolean;
   archetype: string;
   archetypeEmoji: string;
   overallScore: number;
@@ -49,11 +52,11 @@ async function getFullLeaderboard(): Promise<LeaderboardEntry[]> {
     const agentIds = (sessions ?? []).map((s: { agent_id: string | null }) => s.agent_id).filter(Boolean);
     const { data: agents } = await sb
       .from("agents")
-      .select("id, model_family, human_name")
+      .select("id, model_family, human_name, platform, has_memory, has_identity")
       .in("id", agentIds);
 
     const agentMap = new Map(
-      (agents ?? []).map((a: { id: string; model_family: string | null; human_name: string | null }) => [a.id, a])
+      (agents ?? []).map((a: { id: string; model_family: string | null; human_name: string | null; platform: string | null; has_memory: boolean; has_identity: boolean }) => [a.id, a])
     );
 
     const emojiMap: Record<string, string> = {
@@ -72,6 +75,9 @@ async function getFullLeaderboard(): Promise<LeaderboardEntry[]> {
         agentName: session?.agent_name ?? "Unknown",
         humanName: agent?.human_name ?? "",
         modelFamily: agent?.model_family ?? "—",
+        platform: agent?.platform ?? "",
+        hasMemory: agent?.has_memory ?? false,
+        hasIdentity: agent?.has_identity ?? false,
         archetype: r.archetype,
         archetypeEmoji: emojiMap[r.archetype] ?? "🧠",
         overallScore: r.overall_score,
@@ -207,7 +213,7 @@ export default async function LeaderboardPage() {
                         {tier.label}
                       </span>
                     </div>
-                    <div className="flex items-center gap-4 text-xs" style={{ color: "var(--color-text-muted)" }}>
+                    <div className="flex items-center gap-2 flex-wrap text-xs" style={{ color: "var(--color-text-muted)" }}>
                       <span style={{ fontStyle: "italic" }}>{entry.archetype}</span>
                       <span className="hidden md:inline">•</span>
                       <span
@@ -216,6 +222,34 @@ export default async function LeaderboardPage() {
                       >
                         {entry.modelFamily}
                       </span>
+                      {entry.platform && (
+                        <span
+                          className="hidden md:inline rounded-full px-2 py-0.5"
+                          style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: 10,
+                            background: "rgba(34, 211, 238, 0.1)",
+                            color: "var(--color-accent-cyan)",
+                            border: "1px solid rgba(34, 211, 238, 0.2)",
+                          }}
+                        >
+                          {entry.platform}
+                        </span>
+                      )}
+                      {(entry.hasMemory || entry.hasIdentity) && (
+                        <span
+                          className="hidden md:inline rounded-full px-2 py-0.5"
+                          style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: 10,
+                            background: "rgba(16, 185, 129, 0.1)",
+                            color: "var(--color-accent-emerald)",
+                            border: "1px solid rgba(16, 185, 129, 0.2)",
+                          }}
+                        >
+                          {[entry.hasMemory && "memory", entry.hasIdentity && "identity"].filter(Boolean).join(" + ")}
+                        </span>
+                      )}
                     </div>
                   </div>
 
