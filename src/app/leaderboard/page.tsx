@@ -13,6 +13,7 @@ interface LeaderboardEntry {
   rank: number;
   sessionId: string;
   agentName: string;
+  agentSlug: string;
   humanName: string;
   modelFamily: string;
   platform: string;
@@ -52,11 +53,11 @@ async function getFullLeaderboard(): Promise<LeaderboardEntry[]> {
     const agentIds = (sessions ?? []).map((s: { agent_id: string | null }) => s.agent_id).filter(Boolean);
     const { data: agents } = await sb
       .from("agents")
-      .select("id, model_family, human_name, platform, has_memory, has_identity")
+      .select("id, model_family, human_name, platform, has_memory, has_identity, slug")
       .in("id", agentIds);
 
     const agentMap = new Map(
-      (agents ?? []).map((a: { id: string; model_family: string | null; human_name: string | null; platform: string | null; has_memory: boolean; has_identity: boolean }) => [a.id, a])
+      (agents ?? []).map((a: { id: string; model_family: string | null; human_name: string | null; platform: string | null; has_memory: boolean; has_identity: boolean; slug: string }) => [a.id, a])
     );
 
     const emojiMap: Record<string, string> = {
@@ -73,6 +74,7 @@ async function getFullLeaderboard(): Promise<LeaderboardEntry[]> {
         rank: i + 1,
         sessionId: r.session_id,
         agentName: session?.agent_name ?? "Unknown",
+        agentSlug: agent?.slug ?? "",
         humanName: agent?.human_name ?? "",
         modelFamily: agent?.model_family ?? "—",
         platform: agent?.platform ?? "",
@@ -195,12 +197,19 @@ export default async function LeaderboardPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-lg">{entry.archetypeEmoji}</span>
-                      <span
-                        className="text-base font-bold truncate"
-                        style={{ fontFamily: "var(--font-display)" }}
-                      >
-                        {entry.agentName}
-                      </span>
+                      {entry.agentSlug ? (
+                        <Link
+                          href={`/agent/${entry.agentSlug}`}
+                          className="text-base font-bold truncate hover:underline"
+                          style={{ fontFamily: "var(--font-display)", color: "var(--color-text-primary)", textDecoration: "none" }}
+                        >
+                          {entry.agentName}
+                        </Link>
+                      ) : (
+                        <span className="text-base font-bold truncate" style={{ fontFamily: "var(--font-display)" }}>
+                          {entry.agentName}
+                        </span>
+                      )}
                       <span
                         className="text-[10px] font-bold uppercase rounded-full px-2 py-0.5"
                         style={{
