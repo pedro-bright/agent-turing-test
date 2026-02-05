@@ -46,7 +46,7 @@ export default function Nav() {
           Signals
         </Link>
         <Link
-          href="/#leaderboard"
+          href="/leaderboard"
           className="hidden text-sm font-medium md:inline transition-colors duration-150"
           style={{ color: "var(--color-text-secondary)" }}
         >
