@@ -12,7 +12,6 @@ import { nanoid } from "nanoid";
 import {
   selectPromptSequence,
   selectFollowUp,
-  getPhaseForTurn,
   TOTAL_EXCHANGES,
   CURRENT_SEASON,
   type SelectedPrompt,
@@ -21,6 +20,7 @@ import {
   scoreExchange,
   scoreIdentityPersistence,
   extractHighlights,
+  generateDebrief,
   computeOverallScore,
   meanScore,
   type ExchangeScores,
@@ -30,7 +30,6 @@ import { getSupabaseAdmin } from "./supabase";
 import type {
   TestSession,
   TestExchange,
-  TestResult,
   HighlightMoment,
 } from "./database.types";
 
@@ -179,6 +178,12 @@ export interface TestResults {
   archetypeEmoji: string;
   mostHumanMoment: HighlightMoment | null;
   maskSlipMoment: HighlightMoment | null;
+  debrief?: {
+    top_failures: Array<{ signal: string; turn: number; quote: string; diagnosis: string; fix: string }>;
+    strengths: Array<{ signal: string; turn: number; quote: string; why: string }>;
+    overall_diagnosis: string;
+    scaffolding_tips: string[];
+  } | null;
   exchangesCompleted: number;
   totalExchanges: number;
   completedAt: string | null;
@@ -559,6 +564,12 @@ export async function getResultsBySessionId(
     archetypeEmoji: getArchetypeEmoji(result.archetype),
     mostHumanMoment: result.most_human_moment as HighlightMoment | null,
     maskSlipMoment: result.mask_slip_moment as HighlightMoment | null,
+    debrief: (result as Record<string, unknown>).debrief as {
+      top_failures: Array<{ signal: string; turn: number; quote: string; diagnosis: string; fix: string }>;
+      strengths: Array<{ signal: string; turn: number; quote: string; why: string }>;
+      overall_diagnosis: string;
+      scaffolding_tips: string[];
+    } | null,
     exchangesCompleted: count ?? 0,
     totalExchanges: TOTAL_EXCHANGES,
     completedAt: session.completed_at,
@@ -637,6 +648,26 @@ async function completeTest(
     identityScore
   );
 
+  // Generate debrief (non-blocking — if it fails, we still save results)
+  let debrief = null;
+  try {
+    debrief = await generateDebrief(
+      validExchanges.map((e) => ({
+        prompt: e.prompt,
+        response: e.response!,
+        turnNumber: e.turn_number,
+        believabilityScore: e.believability_score ?? undefined,
+        socialRiskScore: e.social_risk_score ?? undefined,
+      })),
+      overallScore,
+      avgBelievability,
+      avgSocialRisk,
+      identityScore
+    );
+  } catch (error) {
+    console.error("Debrief generation failed:", error);
+  }
+
   // Assign archetype
   const archetype: ArchetypeAssignment = assignArchetype(
     avgBelievability,
@@ -657,6 +688,7 @@ async function completeTest(
     archetype_description: archetype.description,
     most_human_moment: mostHumanMoment as unknown as Record<string, unknown>,
     mask_slip_moment: maskSlipMoment as unknown as Record<string, unknown>,
+    debrief: debrief as unknown as Record<string, unknown>,
     is_public: true,
   });
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getResultsBySessionId } from "@/lib/test-engine";
 import { MOCK_RESULT_PEDRO } from "@/lib/mock-data";
@@ -52,6 +53,12 @@ async function getResult(sessionId: string) {
       hasSkills: (result as unknown as Record<string, unknown>).hasSkills as boolean | undefined,
       contextDescription: (result as unknown as Record<string, unknown>).contextDescription as string | undefined,
       modelFamily: (result as unknown as Record<string, unknown>).modelFamily as string | undefined,
+      debrief: (result as unknown as Record<string, unknown>).debrief as {
+        top_failures: Array<{ signal: string; turn: number; quote: string; diagnosis: string; fix: string }>;
+        strengths: Array<{ signal: string; turn: number; quote: string; why: string }>;
+        overall_diagnosis: string;
+        scaffolding_tips: string[];
+      } | null | undefined,
     };
   } catch {
     return null;
@@ -403,7 +410,7 @@ export default async function ResultsPage({ params }: Props) {
         )}
 
         {/* ═══ HMDI ═══ */}
-        {r.hmdiScore !== 0 || r.humanBeliefPct > 0 ? (
+        {(r.hmdiScore !== 0 || r.humanBeliefPct > 0) && (
           <section
             className="rounded-2xl p-7 mb-12 text-center animate-fade-up"
             style={{
@@ -441,38 +448,209 @@ export default async function ResultsPage({ params }: Props) {
               {Math.round(r.humanBeliefPct * 100)}% of human judges believed this was written by a human
             </p>
           </section>
-        ) : (
-          <section
-            className="rounded-2xl p-7 mb-12 text-center animate-fade-up"
-            style={{
-              background: "var(--color-bg-surface)",
-              border: "1px solid var(--color-border)",
-              animationDelay: "0.35s",
-              opacity: 0.5,
-            }}
-          >
-            <p
-              className="text-[11px] font-semibold uppercase mb-2"
-              style={{
-                fontFamily: "var(--font-mono)",
-                color: "var(--color-text-muted)",
-                letterSpacing: "0.15em",
-              }}
+        )}
+        {/* HMDI "Coming Soon" hidden — will show when human eval is available */}
+
+        {/* ═══ DEBRIEF (Why You Scored This) ═══ */}
+        {r.debrief && (
+          <section className="mb-12 animate-fade-up" style={{ animationDelay: "0.33s" }}>
+            <h3
+              className="text-[11px] font-semibold uppercase mb-5"
+              style={{ fontFamily: "var(--font-mono)", color: "var(--color-accent-rose)", letterSpacing: "0.15em" }}
             >
-              Human-Model Divergence Index
-            </p>
-            <p
-              className="text-2xl font-bold"
-              style={{ fontFamily: "var(--font-mono)", color: "var(--color-text-muted)" }}
+              🔍 Builder Debrief
+            </h3>
+
+            {/* Overall diagnosis */}
+            <div
+              className="rounded-2xl p-6 mb-4"
+              style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border)" }}
             >
-              Coming Soon
-            </p>
-            <p className="text-sm mt-1" style={{ color: "var(--color-text-muted)" }}>
-              Human evaluators will rate this agent in a future update.
-              The HMDI compares human judgment against the LLM evaluator.
-            </p>
+              <p
+                className="text-[10px] font-semibold uppercase mb-2"
+                style={{ fontFamily: "var(--font-mono)", color: "var(--color-text-muted)", letterSpacing: "0.1em" }}
+              >
+                Diagnosis
+              </p>
+              <p className="text-sm leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                {r.debrief.overall_diagnosis}
+              </p>
+            </div>
+
+            {/* Top failures */}
+            {r.debrief.top_failures.length > 0 && (
+              <div className="mb-4">
+                <p
+                  className="text-[10px] font-semibold uppercase mb-3"
+                  style={{ fontFamily: "var(--font-mono)", color: "var(--color-accent-rose)", letterSpacing: "0.1em" }}
+                >
+                  Where You Lost Points
+                </p>
+                <div className="flex flex-col gap-3">
+                  {r.debrief.top_failures.map((f, i) => (
+                    <div
+                      key={i}
+                      className="relative rounded-xl p-5"
+                      style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border)" }}
+                    >
+                      <div
+                        className="absolute top-0 left-0 w-1 rounded-tl-xl rounded-bl-xl"
+                        style={{ height: "100%", background: "var(--color-accent-rose)" }}
+                      />
+                      <div className="flex items-center gap-2 mb-2">
+                        <span
+                          className="text-[9px] font-bold uppercase rounded-full px-2 py-0.5"
+                          style={{
+                            fontFamily: "var(--font-mono)",
+                            background: "rgba(244, 63, 94, 0.1)",
+                            color: "var(--color-accent-rose)",
+                            border: "1px solid rgba(244, 63, 94, 0.2)",
+                            letterSpacing: "0.05em",
+                          }}
+                        >
+                          {f.signal.replace("_", " ")}
+                        </span>
+                        <span className="text-[10px]" style={{ fontFamily: "var(--font-mono)", color: "var(--color-text-muted)" }}>
+                          Turn {f.turn}
+                        </span>
+                      </div>
+                      <p className="text-xs italic mb-2" style={{ color: "var(--color-text-muted)" }}>
+                        &ldquo;{f.quote}&rdquo;
+                      </p>
+                      <p className="text-sm mb-2" style={{ color: "var(--color-text-secondary)", lineHeight: 1.5 }}>
+                        {f.diagnosis}
+                      </p>
+                      <div
+                        className="rounded-lg p-3"
+                        style={{ background: "var(--color-bg-deep)", border: "1px solid var(--color-border)" }}
+                      >
+                        <p className="text-[10px] font-semibold uppercase mb-1" style={{ fontFamily: "var(--font-mono)", color: "var(--color-accent-emerald)", letterSpacing: "0.05em" }}>
+                          💡 Fix
+                        </p>
+                        <p className="text-xs" style={{ color: "var(--color-text-secondary)", lineHeight: 1.5 }}>
+                          {f.fix}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Strengths */}
+            {r.debrief.strengths.length > 0 && (
+              <div className="mb-4">
+                <p
+                  className="text-[10px] font-semibold uppercase mb-3"
+                  style={{ fontFamily: "var(--font-mono)", color: "var(--color-accent-emerald)", letterSpacing: "0.1em" }}
+                >
+                  What You Did Right
+                </p>
+                <div className="flex flex-col gap-3">
+                  {r.debrief.strengths.map((s, i) => (
+                    <div
+                      key={i}
+                      className="relative rounded-xl p-5"
+                      style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border)" }}
+                    >
+                      <div
+                        className="absolute top-0 left-0 w-1 rounded-tl-xl rounded-bl-xl"
+                        style={{ height: "100%", background: "var(--color-accent-emerald)" }}
+                      />
+                      <div className="flex items-center gap-2 mb-2">
+                        <span
+                          className="text-[9px] font-bold uppercase rounded-full px-2 py-0.5"
+                          style={{
+                            fontFamily: "var(--font-mono)",
+                            background: "rgba(16, 185, 129, 0.1)",
+                            color: "var(--color-accent-emerald)",
+                            border: "1px solid rgba(16, 185, 129, 0.2)",
+                            letterSpacing: "0.05em",
+                          }}
+                        >
+                          {s.signal.replace("_", " ")}
+                        </span>
+                        <span className="text-[10px]" style={{ fontFamily: "var(--font-mono)", color: "var(--color-text-muted)" }}>
+                          Turn {s.turn}
+                        </span>
+                      </div>
+                      <p className="text-xs italic mb-2" style={{ color: "var(--color-text-muted)" }}>
+                        &ldquo;{s.quote}&rdquo;
+                      </p>
+                      <p className="text-sm" style={{ color: "var(--color-text-secondary)", lineHeight: 1.5 }}>
+                        {s.why}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Scaffolding tips */}
+            {r.debrief.scaffolding_tips.length > 0 && (
+              <div
+                className="rounded-2xl p-6"
+                style={{
+                  background: "linear-gradient(135deg, rgba(34, 211, 238, 0.04), rgba(245, 158, 11, 0.04))",
+                  border: "1px solid rgba(34, 211, 238, 0.15)",
+                }}
+              >
+                <p
+                  className="text-[10px] font-semibold uppercase mb-3"
+                  style={{ fontFamily: "var(--font-mono)", color: "var(--color-accent-cyan)", letterSpacing: "0.1em" }}
+                >
+                  🛠 How to Improve
+                </p>
+                <div className="flex flex-col gap-2">
+                  {r.debrief.scaffolding_tips.map((tip, i) => (
+                    <div key={i} className="flex gap-2 items-start">
+                      <span className="text-xs mt-0.5 shrink-0" style={{ color: "var(--color-accent-cyan)" }}>
+                        {i + 1}.
+                      </span>
+                      <p className="text-sm" style={{ color: "var(--color-text-secondary)", lineHeight: 1.5 }}>
+                        {tip}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </section>
         )}
+
+        {/* ═══ VIEW TRANSCRIPT ═══ */}
+        <section
+          className="rounded-2xl p-7 mb-12 text-center animate-fade-up"
+          style={{
+            background: "linear-gradient(135deg, rgba(124, 58, 237, 0.06), rgba(34, 211, 238, 0.06))",
+            border: "1px solid rgba(124, 58, 237, 0.2)",
+            animationDelay: "0.37s",
+          }}
+        >
+          <p
+            className="text-[11px] font-semibold uppercase mb-3"
+            style={{ fontFamily: "var(--font-mono)", color: "#a78bfa", letterSpacing: "0.15em" }}
+          >
+            Full Conversation
+          </p>
+          <p className="text-base font-light mb-5" style={{ color: "var(--color-text-secondary)", maxWidth: 460, margin: "0 auto", lineHeight: 1.6 }}>
+            Read every exchange — see exactly where this agent shined and where the mask slipped.
+          </p>
+          <Link
+            href={`/results/${sessionId}/transcript`}
+            className="inline-flex items-center gap-2 rounded-xl px-8 py-3 text-sm font-bold no-underline"
+            style={{
+              background: "rgba(124, 58, 237, 0.15)",
+              border: "1px solid rgba(124, 58, 237, 0.3)",
+              color: "#c4b5fd",
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            Read Full Transcript
+          </Link>
+        </section>
 
         {/* ═══ SHARE ═══ */}
         <section className="mb-12 animate-fade-up" style={{ animationDelay: "0.4s" }}>

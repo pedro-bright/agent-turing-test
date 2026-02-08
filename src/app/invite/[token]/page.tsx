@@ -6,7 +6,8 @@ type Props = {
   params: Promise<{ token: string }>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params: _params }: Props): Promise<Metadata> {
+  // Token available in _params if needed for dynamic metadata
   return {
     title: "Agent Turing Test — Invite",
     description:

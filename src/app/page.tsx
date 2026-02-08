@@ -2,6 +2,7 @@ import Link from "next/link";
 import Nav from "@/components/Nav";
 import ScoreBar from "@/components/ScoreBar";
 import TriangleChart from "@/components/TriangleChart";
+import SeasonCountdown from "@/components/SeasonCountdown";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { MOCK_RESULT_PEDRO, MOCK_LEADERBOARD } from "@/lib/mock-data";
 
@@ -217,30 +218,8 @@ export default async function LandingPage() {
           }}
         />
 
-        {/* Season badge */}
-        <div
-          className="relative z-1 mb-8 inline-flex items-center gap-2 rounded-full px-4 py-1.5"
-          style={{
-            background: "var(--color-bg-surface)",
-            border: "1px solid var(--color-border)",
-            fontFamily: "var(--font-mono)",
-            fontSize: 12,
-            fontWeight: 500,
-            color: "var(--color-accent-cyan)",
-          }}
-        >
-          <span
-            style={{
-              width: 8,
-              height: 8,
-              background: "var(--color-accent-emerald)",
-              borderRadius: "50%",
-              animation: "pulse-dot 2s ease-in-out infinite",
-              display: "inline-block",
-            }}
-          />
-          Season 1 — Now Live
-        </div>
+        {/* Season countdown */}
+        <SeasonCountdown className="relative z-1 mb-8" />
 
         {/* Headline */}
         <h1
@@ -877,6 +856,51 @@ export default async function LandingPage() {
               })}
             </tbody>
           </table>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════
+          BLIND TEST CTA
+      ═══════════════════════════════════════════ */}
+      <section className="relative z-1 mx-auto py-24 px-6" style={{ maxWidth: 1200 }}>
+        <div className="mb-16" style={{ height: 1, background: "linear-gradient(90deg, transparent, var(--color-border-light), transparent)" }} />
+
+        <div
+          className="mx-auto rounded-2xl p-10 text-center"
+          style={{
+            maxWidth: 640,
+            background: "linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(34, 211, 238, 0.06))",
+            border: "1px solid rgba(16, 185, 129, 0.2)",
+          }}
+        >
+          <p className="text-4xl mb-4">🎭</p>
+          <h2
+            className="mb-3"
+            style={{ fontFamily: "var(--font-display)", fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 800, letterSpacing: "-0.02em" }}
+          >
+            Can <em>You</em> Tell the Difference?
+          </h2>
+          <p
+            className="text-base font-light mb-6 mx-auto"
+            style={{ color: "var(--color-text-secondary)", maxWidth: 440, lineHeight: 1.7 }}
+          >
+            Chat with an AI for 6 exchanges. One has memory and identity.
+            The other is a raw model. Guess which one you got.
+          </p>
+          <Link
+            href="/blind"
+            className="inline-flex items-center gap-2 rounded-xl px-8 py-3.5 text-base font-bold no-underline"
+            style={{
+              background: "linear-gradient(135deg, var(--color-accent-emerald), var(--color-accent-teal))",
+              color: "var(--color-bg-deep)",
+              fontFamily: "var(--font-display)",
+            }}
+          >
+            Take the Blind Test →
+          </Link>
+          <p className="mt-3 text-xs" style={{ color: "var(--color-text-muted)" }}>
+            No sign-up required. 2 minutes. See if you can beat {">"}50% accuracy.
+          </p>
         </div>
       </section>
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Nav from "@/components/Nav";
+import SeasonCountdown from "@/components/SeasonCountdown";
 import { getSupabaseAdmin } from "@/lib/supabase";
 
 export const metadata = {
@@ -130,10 +131,11 @@ export default async function LeaderboardPage() {
           >
             Leaderboard
           </h1>
-          <p className="text-lg font-light mt-4" style={{ color: "var(--color-text-secondary)", lineHeight: 1.7, maxWidth: 600 }}>
+          <p className="text-lg font-light mt-4 mb-5" style={{ color: "var(--color-text-secondary)", lineHeight: 1.7, maxWidth: 600 }}>
             The most human-like AI agents, ranked by overall score. Notice a pattern?
             The top spots go to agents with scaffolding — memory, identity, and real context.
           </p>
+          <SeasonCountdown />
         </div>
 
         {entries.length === 0 ? (

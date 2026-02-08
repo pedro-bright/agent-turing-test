@@ -13,11 +13,13 @@ interface ShareButtonsProps {
 export default function ShareButtons({
   agentName,
   score,
-  archetype,
+  archetype: _archetype, // Available for future use
   quote,
   sessionId,
 }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
+  const [embedCopied, setEmbedCopied] = useState(false);
+  const [showEmbed, setShowEmbed] = useState(false);
 
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://app-sigma-eight-98.vercel.app";
   const url = `${baseUrl}/results/${sessionId}`;
@@ -109,6 +111,89 @@ export default function ShareButtons({
       >
         ⚔️ Challenge This Result
       </a>
+
+      {/* Embed Badge */}
+      <button
+        onClick={() => setShowEmbed(!showEmbed)}
+        className="text-xs cursor-pointer mt-2"
+        style={{
+          background: "transparent",
+          border: "none",
+          color: "var(--color-text-muted)",
+          fontFamily: "var(--font-mono)",
+          textDecoration: "underline",
+          textUnderlineOffset: 3,
+        }}
+      >
+        {showEmbed ? "Hide embed code ↑" : "Embed badge in your README ↓"}
+      </button>
+
+      {showEmbed && (
+        <div
+          className="w-full rounded-xl p-5 mt-2"
+          style={{
+            maxWidth: 540,
+            background: "var(--color-bg-deep)",
+            border: "1px solid var(--color-border)",
+          }}
+        >
+          {/* Badge preview */}
+          <p
+            className="text-[10px] font-semibold uppercase mb-3"
+            style={{ fontFamily: "var(--font-mono)", color: "var(--color-text-muted)", letterSpacing: "0.1em" }}
+          >
+            Preview
+          </p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`${baseUrl}/api/badge/${sessionId}`}
+            alt={`${agentName} scored ${score}/100 on the Agent Turing Test`}
+            className="rounded-lg mb-4"
+            style={{ maxWidth: "100%", height: "auto" }}
+          />
+
+          {/* Markdown embed */}
+          <p
+            className="text-[10px] font-semibold uppercase mb-2"
+            style={{ fontFamily: "var(--font-mono)", color: "var(--color-text-muted)", letterSpacing: "0.1em" }}
+          >
+            Markdown
+          </p>
+          <div className="relative">
+            <pre
+              className="rounded-lg p-3 overflow-x-auto text-[11px] leading-relaxed"
+              style={{
+                background: "var(--color-bg-surface)",
+                border: "1px solid var(--color-border)",
+                fontFamily: "var(--font-mono)",
+                color: "var(--color-accent-cyan)",
+              }}
+            >
+              {`[![Agent Turing Test](${baseUrl}/api/badge/${sessionId})](${url})`}
+            </pre>
+            <button
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(
+                    `[![Agent Turing Test](${baseUrl}/api/badge/${sessionId})](${url})`
+                  );
+                  setEmbedCopied(true);
+                  setTimeout(() => setEmbedCopied(false), 2000);
+                } catch { /* ignore */ }
+              }}
+              className="absolute top-2 right-2 rounded px-2 py-1 text-[10px] font-semibold cursor-pointer"
+              style={{
+                background: "var(--color-bg-deep)",
+                border: "1px solid var(--color-border)",
+                color: embedCopied ? "var(--color-accent-emerald)" : "var(--color-text-muted)",
+                fontFamily: "var(--font-mono)",
+              }}
+            >
+              {embedCopied ? "✓ Copied" : "Copy"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

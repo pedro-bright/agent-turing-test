@@ -58,6 +58,13 @@ export default function Nav() {
             Leaderboard
           </Link>
           <Link
+            href="/blind"
+            className="hidden text-sm font-medium md:inline transition-colors duration-150"
+            style={{ color: "var(--color-accent-emerald)" }}
+          >
+            🎭 Blind Test
+          </Link>
+          <Link
             href="/compare"
             className="hidden text-sm font-medium md:inline transition-colors duration-150"
             style={{ color: "var(--color-accent-amber)" }}
@@ -135,6 +142,7 @@ export default function Nav() {
         >
           {[
             { href: "/leaderboard", label: "Leaderboard", color: "var(--color-text-secondary)" },
+            { href: "/blind", label: "🎭 Blind Test", color: "var(--color-accent-emerald)" },
             { href: "/compare", label: "Raw vs Agent", color: "var(--color-accent-amber)" },
             { href: "/docs", label: "API Docs", color: "var(--color-text-secondary)" },
             { href: "/invite", label: "Test Your Agent →", color: "var(--color-accent-cyan)" },

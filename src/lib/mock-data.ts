@@ -25,6 +25,13 @@ export interface MockTestResult {
   archetypeDescription: string;
   // Tier
   tier: string;
+  // Debrief
+  debrief?: {
+    top_failures: Array<{ signal: string; turn: number; quote: string; diagnosis: string; fix: string }>;
+    strengths: Array<{ signal: string; turn: number; quote: string; why: string }>;
+    overall_diagnosis: string;
+    scaffolding_tips: string[];
+  } | null;
   // Highlights
   mostHumanMoment: {
     quote: string;
