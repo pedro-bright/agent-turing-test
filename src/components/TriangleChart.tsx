@@ -22,8 +22,11 @@ export default function TriangleChart({
   className = "",
   mini = false,
 }: TriangleChartProps) {
-  const cx = size / 2;
-  const cy = size / 2;
+  // Add padding for labels - the viewBox is larger than the visible triangle
+  const padding = mini ? 0 : 50;
+  const viewBoxSize = size + padding * 2;
+  const cx = viewBoxSize / 2;
+  const cy = viewBoxSize / 2;
   const radius = size * 0.38;
 
   // Equilateral triangle vertices (top, bottom-left, bottom-right)
@@ -75,7 +78,7 @@ export default function TriangleChart({
 
   return (
     <svg
-      viewBox={`0 0 ${size} ${size}`}
+      viewBox={`0 0 ${viewBoxSize} ${viewBoxSize}`}
       className={className}
       style={{ width: "100%", maxWidth: size, height: "auto" }}
     >
