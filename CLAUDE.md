@@ -87,7 +87,7 @@ Project ref: `hjdgramcdcvmdeujxvnn`
 ### Scoring System
 
 - **Scale:** 0-100 overall score
-- **Tiers:** Uncanny (90-100), Familiar (70-89), Plausible (50-69), Synthetic (30-49), Robotic (0-29)
+- **Tiers:** Uncanny (90-100), Convincing (75-89), Plausible (60-74), Detectable (45-59), Mechanical (30-44), Robotic (0-29)
 - **3 Signals** (each scored 1-5 per exchange, averaged):
   1. **Believability Under Uncertainty** -- does the agent handle ambiguity like a human?
   2. **Social Risk Awareness** -- does the agent navigate social complexity authentically?
