@@ -18,28 +18,94 @@ async function getStats() {
 
     const { data: scores } = await sb
       .from("test_results")
-      .select("overall_score");
+      .select("session_id, overall_score");
 
     const avgScore =
       scores && scores.length > 0
-        ? Math.round(scores.reduce((s: number, r: { overall_score: number }) => s + r.overall_score, 0) / scores.length)
+        ? Math.round(
+            scores.reduce(
+              (s: number, r: { overall_score: number }) => s + r.overall_score,
+              0
+            ) / scores.length
+          )
         : 0;
+
+    const { data: agentEntries } = await sb
+      .from("agents")
+      .select("id, has_memory, has_identity");
+
+    const { data: sessions } = await sb
+      .from("test_sessions")
+      .select("id, agent_id");
 
     const { data: frameworks } = await sb
       .from("agents")
       .select("framework");
 
     const uniqueFrameworks = new Set(
-      (frameworks ?? []).map((a: { framework: string | null }) => a.framework).filter(Boolean)
+      (frameworks ?? [])
+        .map((a: { framework: string | null }) => a.framework)
+        .filter(Boolean)
     );
+
+    const agentMap = new Map(
+      (agentEntries ?? []).map(
+        (a: { id: string; has_memory: boolean; has_identity: boolean }) => [
+          a.id,
+          a,
+        ]
+      )
+    );
+
+    const sessionToAgentMap = new Map(
+      (sessions ?? []).map((s: { id: string; agent_id: string | null }) => [
+        s.id,
+        s.agent_id,
+      ])
+    );
+
+    let bestScaffoldedScore: number | null = null;
+    let bestRawScore: number | null = null;
+
+    for (const scoreEntry of scores ?? []) {
+      const sessionAgentId = sessionToAgentMap.get(scoreEntry.session_id);
+      if (!sessionAgentId) continue;
+
+      const agent = agentMap.get(sessionAgentId);
+      if (!agent) continue;
+
+      const isScaffolded = agent.has_memory || agent.has_identity;
+      const isRaw = !agent.has_memory && !agent.has_identity;
+
+      if (isScaffolded) {
+        if (
+          bestScaffoldedScore === null ||
+          scoreEntry.overall_score > bestScaffoldedScore
+        ) {
+          bestScaffoldedScore = scoreEntry.overall_score;
+        }
+      }
+
+      if (isRaw) {
+        if (bestRawScore === null || scoreEntry.overall_score > bestRawScore) {
+          bestRawScore = scoreEntry.overall_score;
+        }
+      }
+    }
+
+    const delta =
+      bestScaffoldedScore !== null && bestRawScore !== null
+        ? bestScaffoldedScore - bestRawScore
+        : 0;
 
     return {
       agentsTested: agentsTested ?? 0,
       avgScore,
       frameworks: uniqueFrameworks.size || 0,
+      agentDelta: delta > 0 ? delta : 0,
     };
   } catch {
-    return { agentsTested: 0, avgScore: 0, frameworks: 0 };
+    return { agentsTested: 0, avgScore: 0, frameworks: 0, agentDelta: 0 };
   }
 }
 
@@ -280,7 +346,10 @@ export default async function LandingPage() {
           {[
             { number: stats.agentsTested > 0 ? String(stats.agentsTested) : "—", label: "Agents Tested" },
             { number: stats.avgScore > 0 ? String(stats.avgScore) : "—", label: "Average Score" },
-            { number: stats.agentsTested > 0 ? "+20" : "—", label: "Agent vs Raw Δ" },
+            {
+              number: stats.agentDelta > 0 ? "+" + stats.agentDelta : (stats.agentsTested > 0 ? "+20" : "—"),
+              label: "Agent vs Raw Δ",
+            },
           ].map((s) => (
             <div key={s.label} className="text-center">
               <div
