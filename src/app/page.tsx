@@ -32,7 +32,7 @@ async function getStats() {
 
     const { data: agentEntries } = await sb
       .from("agents")
-      .select("id, has_memory, has_identity");
+      .select("id, has_memory, has_identity, model_family, platform");
 
     const { data: sessions } = await sb
       .from("test_sessions")
@@ -50,7 +50,7 @@ async function getStats() {
 
     const agentMap = new Map(
       (agentEntries ?? []).map(
-        (a: { id: string; has_memory: boolean; has_identity: boolean }) => [
+        (a: { id: string; has_memory: boolean; has_identity: boolean; model_family: string | null; platform: string | null }) => [
           a.id,
           a,
         ]
@@ -64,33 +64,66 @@ async function getStats() {
       ])
     );
 
-    let bestScaffoldedScore: number | null = null;
-    let bestRawScore: number | null = null;
+    // Build per-model-family best scaffolded and best raw scores
+    // A "raw" agent has no scaffolding (has_memory=false, has_identity=false) but also has platform="raw" or platform=null
+    // Explicitly platform="raw" agents are the canonical raw baselines
+    const isScaffoldedAgent = (agent: { has_memory: boolean; has_identity: boolean; platform: string | null }) =>
+      agent.has_memory || agent.has_identity || (agent.platform && agent.platform !== "raw" && agent.platform !== "none" && agent.platform !== null);
+    const isExplicitRaw = (agent: { platform: string | null }) =>
+      agent.platform === "raw";
 
-    for (const scoreEntry of scores ?? []) {
+    // Try to find same-model-family raw vs scaffolded pair (e.g. claude-opus-4-5 raw vs scaffolded)
+    type ScoreEntry = { session_id: string; overall_score: number };
+    const scaffoldedByFamily = new Map<string, number>(); // modelFamily -> bestScore
+    const rawByFamily = new Map<string, number>(); // modelFamily -> bestScore
+
+    for (const scoreEntry of scores as ScoreEntry[] ?? []) {
       const sessionAgentId = sessionToAgentMap.get(scoreEntry.session_id);
       if (!sessionAgentId) continue;
 
       const agent = agentMap.get(sessionAgentId);
       if (!agent) continue;
 
-      const isScaffolded = agent.has_memory || agent.has_identity;
-      const isRaw = !agent.has_memory && !agent.has_identity;
+      const family = (agent.model_family ?? "unknown").split("-").slice(0, 2).join("-").toLowerCase();
 
-      if (isScaffolded) {
-        if (
-          bestScaffoldedScore === null ||
-          scoreEntry.overall_score > bestScaffoldedScore
-        ) {
-          bestScaffoldedScore = scoreEntry.overall_score;
+      if (isScaffoldedAgent(agent)) {
+        const current = scaffoldedByFamily.get(family) ?? 0;
+        if (scoreEntry.overall_score > current) scaffoldedByFamily.set(family, scoreEntry.overall_score);
+      } else if (isExplicitRaw(agent)) {
+        const current = rawByFamily.get(family) ?? 0;
+        if (scoreEntry.overall_score > current) rawByFamily.set(family, scoreEntry.overall_score);
+      }
+    }
+
+    // Find the best same-family pair (prioritize explicit raw platform="raw")
+    let bestDelta = 0;
+    let bestScaffoldedScore: number | null = null;
+    let bestRawScore: number | null = null;
+
+    for (const [family, scaffScore] of scaffoldedByFamily.entries()) {
+      const rawScore = rawByFamily.get(family);
+      if (rawScore !== undefined) {
+        const d = scaffScore - rawScore;
+        if (d > bestDelta) {
+          bestDelta = d;
+          bestScaffoldedScore = scaffScore;
+          bestRawScore = rawScore;
         }
       }
+    }
 
-      if (isRaw) {
-        if (bestRawScore === null || scoreEntry.overall_score > bestRawScore) {
-          bestRawScore = scoreEntry.overall_score;
-        }
+    // Fallback: if no same-family pair found, use best overall scaffolded vs best explicit raw
+    if (bestScaffoldedScore === null && rawByFamily.size > 0) {
+      let overallBestScaffolded: number | null = null;
+      for (const s of scaffoldedByFamily.values()) {
+        if (overallBestScaffolded === null || s > overallBestScaffolded) overallBestScaffolded = s;
       }
+      let overallBestRaw: number | null = null;
+      for (const r of rawByFamily.values()) {
+        if (overallBestRaw === null || r > overallBestRaw) overallBestRaw = r;
+      }
+      bestScaffoldedScore = overallBestScaffolded;
+      bestRawScore = overallBestRaw;
     }
 
     const delta =
