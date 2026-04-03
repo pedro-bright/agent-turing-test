@@ -40,18 +40,30 @@ export default function SeasonCountdown({ className = "" }: { className?: string
     );
   }
 
+  const isUrgent = timeLeft.days < 30;
+  const isCritical = timeLeft.days < 7;
+
   return (
     <div
       className={`inline-flex items-center gap-3 rounded-full px-4 py-1.5 ${className}`}
       style={{
-        background: "rgba(245, 158, 11, 0.08)",
-        border: "1px solid rgba(245, 158, 11, 0.2)",
+        background: isCritical
+          ? "rgba(244, 63, 94, 0.10)"
+          : isUrgent
+          ? "rgba(245, 158, 11, 0.12)"
+          : "rgba(245, 158, 11, 0.08)",
+        border: isCritical
+          ? "1px solid rgba(244, 63, 94, 0.30)"
+          : isUrgent
+          ? "1px solid rgba(245, 158, 11, 0.30)"
+          : "1px solid rgba(245, 158, 11, 0.20)",
         fontFamily: "var(--font-mono)",
         fontSize: 12,
+        animation: isCritical ? "pulse 2s ease-in-out infinite" : undefined,
       }}
     >
-      <span style={{ color: "var(--color-accent-amber)", fontWeight: 600 }}>
-        Season 1 closes in
+      <span style={{ color: isCritical ? "var(--color-accent-rose)" : "var(--color-accent-amber)", fontWeight: 600 }}>
+        {isCritical ? "⚠️ Season 1 ends in" : isUrgent ? "🔥 Season 1 closes in" : "Season 1 closes in"}
       </span>
       <div className="flex items-center gap-1.5">
         <TimeUnit value={timeLeft.days} label="d" />
