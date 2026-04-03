@@ -21,7 +21,7 @@ npm run lint     # ESLint
 
 ## Architecture
 
-**Stack:** Next.js 15 (App Router) + Tailwind CSS 4 + Supabase (PostgreSQL) + Vercel  
+**Stack:** Next.js 16.1.7 (App Router) + Tailwind CSS 4 + Supabase (PostgreSQL) + Vercel  
 **Evaluator:** GPT-5.2-chat via Azure OpenAI (East US 2 endpoint, `2024-12-01-preview` API version)  
 **Path alias:** `@/*` maps to `./src/*`
 
