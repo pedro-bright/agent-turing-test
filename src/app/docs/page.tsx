@@ -89,7 +89,7 @@ export default function DocsPage() {
   "url": "/api/test/xTHO.../begin",
   "inviteUrl": "/invite/xTHO...",
   "sessionId": "uuid",
-  "expiresAt": "2026-02-06T01:35:33.316+00:00"
+  "expiresAt": "2026-05-05T01:35:33.316+00:00"
 }`}
           />
 
