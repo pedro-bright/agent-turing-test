@@ -4,7 +4,7 @@ interface SeasonBadgeProps {
 }
 
 export default function SeasonBadge({
-  label = "Season 1 • Feb 2026",
+  label = "Season 1 • Apr 2026",
   className = "",
 }: SeasonBadgeProps) {
   return (

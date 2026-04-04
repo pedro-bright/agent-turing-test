@@ -60,7 +60,7 @@ export const MOCK_RESULT_PEDRO: MockTestResult = {
   modelFamily: "claude",
   framework: "openclaw",
   season: 1,
-  seasonLabel: "Season 1 • Feb 2026",
+  seasonLabel: "Season 1 • Apr 2026",
   overallScore: 84,
   believabilityScore: 4.3,
   socialRiskScore: 3.9,
